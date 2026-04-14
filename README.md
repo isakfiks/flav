@@ -4,7 +4,7 @@ flav is a clean, lightweight, open-source API client built for developers who va
 
 ## Demo
 
-[Demo video/GIF coming soon - showing quick request setup, response panel, and collections management]
+![flav demo](https://github.com/isakfiks/flav/blob/main/public/flav_demo.gif?raw=true)
 
 ## Why flav?
 
