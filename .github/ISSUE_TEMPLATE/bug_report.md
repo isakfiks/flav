@@ -32,8 +32,8 @@ If applicable, add screenshots to help explain your problem.
 ## Environment
 
 - **OS**: (macOS, Windows, Linux)
-- **Version**: (Web or Desktop app version)
-- **Browser**: (if web version)
+- **Version**: (Website or Desktop app version)
+- **Browser**: (if website issue)
 - **Node version**: (if relevant)
 
 ## Additional context

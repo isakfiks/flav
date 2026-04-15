@@ -197,7 +197,10 @@ const RequestPanel = () => {
             />
           </TabsContent>
 
-          <TabsContent value="body" className="m-0 h-full overflow-y-auto p-3 animate-content-flow">
+          <TabsContent
+            value="body"
+            className="m-0 h-full p-3 animate-content-flow data-[state=active]:flex data-[state=active]:flex-col"
+          >
             <ToggleGroup
               type="single"
               value={activeRequest.bodyType}
@@ -218,7 +221,7 @@ const RequestPanel = () => {
             </ToggleGroup>
             {activeRequest.bodyType !== 'none' && (
               <textarea
-                className="w-full h-48 bg-code-bg text-code-foreground rounded-lg p-4 font-mono text-xs outline-none resize-none border border-border focus:ring-1 focus:ring-ring transition-all"
+                className="w-full flex-1 min-h-[14rem] bg-code-bg text-code-foreground rounded-lg p-4 font-mono text-xs outline-none resize-none overflow-auto border border-border focus:ring-1 focus:ring-ring transition-all"
                 value={activeRequest.body}
                 onChange={(e) => update({ body: e.target.value })}
                 placeholder={activeRequest.bodyType === 'json' ? '{\n  "key": "value"\n}' : activeRequest.bodyType === 'graphql' ? '{\n  query {\n    users {\n      id\n      name\n    }\n  }\n}' : 'Enter request body'}
@@ -289,12 +292,15 @@ const RequestPanel = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="pre-request" className="m-0 h-full overflow-y-auto p-3 animate-content-flow">
+          <TabsContent
+            value="pre-request"
+            className="m-0 h-full p-3 animate-content-flow data-[state=active]:flex data-[state=active]:flex-col"
+          >
             <p className="text-xs text-muted-foreground mb-2">
               JavaScript to run before the request is sent.
             </p>
             <textarea
-              className="w-full h-48 bg-code-bg text-code-foreground rounded-lg p-4 font-mono text-xs outline-none resize-none border border-border"
+              className="w-full flex-1 min-h-[14rem] bg-code-bg text-code-foreground rounded-lg p-4 font-mono text-xs outline-none resize-none overflow-auto border border-border"
               value={activeRequest.preRequestScript}
               onChange={(e) => update({ preRequestScript: e.target.value })}
               placeholder={`// Example:\n// pm.environment.set("timestamp", Date.now());`}
@@ -302,12 +308,15 @@ const RequestPanel = () => {
             />
           </TabsContent>
 
-          <TabsContent value="tests" className="m-0 h-full overflow-y-auto p-3 animate-content-flow">
+          <TabsContent
+            value="tests"
+            className="m-0 h-full p-3 animate-content-flow data-[state=active]:flex data-[state=active]:flex-col"
+          >
             <p className="text-xs text-muted-foreground mb-2">
               Write tests to validate your response.
             </p>
             <textarea
-              className="w-full h-48 bg-code-bg text-code-foreground rounded-lg p-4 font-mono text-xs outline-none resize-none border border-border"
+              className="w-full flex-1 min-h-[14rem] bg-code-bg text-code-foreground rounded-lg p-4 font-mono text-xs outline-none resize-none overflow-auto border border-border"
               value={activeRequest.tests}
               onChange={(e) => update({ tests: e.target.value })}
               placeholder={`// Example:\npm.test("Status is 200", function() {\n  pm.expect(pm.response.code).to.equal(200);\n});`}

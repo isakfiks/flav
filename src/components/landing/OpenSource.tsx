@@ -13,7 +13,7 @@ const OpenSource = () => {
             Open source. Always.
           </h2>
           <p className="text-muted-foreground font-light max-w-lg mx-auto">
-            Arc is MIT licensed and fully open source. Clone from GitHub, build it yourself, and use it however you want.
+            flav is MIT licensed and fully open source. Clone from GitHub, build it yourself, and use it however you want.
           </p>
         </div>
 
@@ -24,10 +24,10 @@ const OpenSource = () => {
             </p>
             <p className="text-lg font-sans font-medium mb-4">From GitHub</p>
             <p className="text-sm text-muted-foreground font-light mb-8">
-              Get the source, build it, and run Arc locally. Everything you need is in the repository.
+              Get the source, build it, and run flav locally. Everything you need is in the repository.
             </p>
             <a
-              href="https://github.com"
+              href="https://github.com/isakfiks/flav"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground hover:border-foreground/20"

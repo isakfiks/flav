@@ -228,14 +228,14 @@ const AppNav = () => {
               <DropdownMenuSubContent className="w-52">
                 <DropdownMenuItem
                   onClick={() => {
-                    openExternal('https://github.com');
+                    openExternal('https://github.com/isakfiks/flav');
                   }}
                 >
-                  <ExternalLink className="w-3.5 h-3.5 mr-2" /> Project Website
+                  <ExternalLink className="w-3.5 h-3.5 mr-2" /> GitHub Repository
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
-                    openExternal('https://github.com/issues');
+                    openExternal('https://github.com/isakfiks/flav/issues');
                   }}
                 >
                   <ExternalLink className="w-3.5 h-3.5 mr-2" /> Report an Issue

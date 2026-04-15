@@ -7,8 +7,8 @@ Thanks for your interest in contributing! We welcome contributions of all kinds 
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/[YOUR_USERNAME]/arc-api.git
-   cd arc-api
+   git clone https://github.com/YOUR_USERNAME/flav.git
+   cd flav
    ```
 3. **Install dependencies:**
    ```bash
@@ -21,13 +21,15 @@ Thanks for your interest in contributing! We welcome contributions of all kinds 
 
 ## Development
 
-### Web App
+### Website (Landing + Docs)
 
 ```bash
 npm run dev:web
 ```
 
 Open [http://localhost:5173](http://localhost:5173). Changes hot-reload automatically.
+
+Note: this target serves only the marketing site and docs. The API client itself runs in the desktop app.
 
 ### Desktop App
 
@@ -94,7 +96,7 @@ Describe:
 
 ## Questions?
 
-- Open a discussion in [GitHub Discussions](https://github.com/[username]/arc-api/discussions)
+- Open a discussion in [GitHub Discussions](https://github.com/isakfiks/flav/discussions)
 - Check existing issues to see if someone already asked
 
 ## Code of Conduct

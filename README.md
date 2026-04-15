@@ -31,18 +31,25 @@ flav is a clean, lightweight, open-source API client built for developers who va
 
 ## Quick Start
 
-### Web Version
+### Clone and Install
 
 ```bash
-git clone https://github.com/[username]/arc-api.git
-cd arc-api
+git clone https://github.com/isakfiks/flav.git
+cd flav
 npm install
+```
+
+### Website (Landing + Docs)
+
+```bash
 npm run dev:web
 ```
 
-Open [http://localhost:5173](http://localhost:5173)
+Open [http://localhost:5173](http://localhost:5173) for the landing page and documentation site.
 
-### Desktop Version
+> Note: flav does not currently ship a web API client. The request/response workspace is desktop-only.
+
+### Desktop App (API Client)
 
 ```bash
 npm run dev:desktop
@@ -51,10 +58,10 @@ npm run dev:desktop
 ## Building
 
 ```bash
-# Web build
+# Website build (landing/docs only)
 npm run build:web
 
-# Desktop build
+# Desktop app build
 npm run build:desktop
 
 # Windows distribution
@@ -64,8 +71,8 @@ npm run dist:win
 ## Project Structure
 
 ```
-arc-api/
-├── src/                    # Web application
+flav/
+├── src/                    # Website (landing + docs)
 │   ├── components/
 │   │   ├── landing/       # Marketing site components
 │   │   └── ui/            # Shared UI primitives
@@ -96,5 +103,5 @@ MIT License — See [LICENSE](./LICENSE) for details.
 
 ## Questions?
 
-- Open an issue on GitHub
-- Check [discussions](https://github.com/[username]/arc-api/discussions)
+- Open an issue on GitHub: [isakfiks/flav issues](https://github.com/isakfiks/flav/issues)
+- Check [discussions](https://github.com/isakfiks/flav/discussions)

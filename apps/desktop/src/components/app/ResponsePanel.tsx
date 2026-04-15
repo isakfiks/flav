@@ -1,8 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '@desktop/context/AppContext';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
+  ChevronDown,
+  ChevronUp,
   CheckCircle,
   XCircle,
   Clock,
@@ -41,17 +43,30 @@ const countMatches = (source: string, query: string) => {
   return matches ? matches.length : 0;
 };
 
-const renderHighlightedText = (source: string, query: string) => {
+const renderHighlightedText = (source: string, query: string, activeMatchIndex: number) => {
   const trimmed = query.trim();
   if (!trimmed) {
     return source;
   }
 
+  let matchIndex = 0;
   const segments = source.split(new RegExp(`(${escapeRegExp(trimmed)})`, 'gi'));
   return segments.map((segment, index) => {
     if (segment.toLowerCase() === trimmed.toLowerCase()) {
+      const currentMatchIndex = matchIndex;
+      matchIndex += 1;
+
       return (
-        <mark key={`${segment}-${index}`} className="bg-accent/40 text-code-foreground rounded-sm px-0.5">
+        <mark
+          key={`${segment}-${index}`}
+          data-match-index={currentMatchIndex}
+          className={cn(
+            'rounded-sm px-0.5',
+            currentMatchIndex === activeMatchIndex
+              ? 'bg-amber-300/70 text-black'
+              : 'bg-accent/40 text-code-foreground'
+          )}
+        >
           {segment}
         </mark>
       );
@@ -70,13 +85,16 @@ const ResponsePanel = () => {
   const [formatMode, setFormatMode] = useState<ResponseFormatMode>('AUTO');
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeMatchIndex, setActiveMatchIndex] = useState(0);
   const [copied, setCopied] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const bodyViewportRef = useRef<HTMLDivElement>(null);
 
   const responseBody = response?.body ?? '';
-  const responseHeaders = response?.headers ?? {};
+  const responseHeaders = response?.headers;
 
   const resolvedFormat = useMemo(
-    () => resolveResponseFormat(responseBody, responseHeaders, formatMode),
+    () => resolveResponseFormat(responseBody, responseHeaders ?? {}, formatMode),
     [responseBody, responseHeaders, formatMode],
   );
 
@@ -87,6 +105,45 @@ const ResponsePanel = () => {
 
   const renderedBody = bodyViewMode === 'raw' ? responseBody : formattedBody;
   const matchCount = useMemo(() => countMatches(renderedBody, searchQuery), [renderedBody, searchQuery]);
+  const visibleMatchCount = bodyViewMode === 'preview' ? 0 : matchCount;
+
+  useEffect(() => {
+    setActiveMatchIndex(0);
+  }, [searchQuery, renderedBody]);
+
+  useEffect(() => {
+    if (!searchVisible) {
+      return;
+    }
+
+    searchInputRef.current?.focus();
+    searchInputRef.current?.select();
+  }, [searchVisible]);
+
+  useEffect(() => {
+    if (!searchVisible || !searchQuery.trim() || visibleMatchCount === 0) {
+      return;
+    }
+
+    const viewport = bodyViewportRef.current;
+    if (!viewport) {
+      return;
+    }
+
+    const activeMatch = viewport.querySelector<HTMLElement>(`mark[data-match-index="${activeMatchIndex}"]`);
+    activeMatch?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }, [activeMatchIndex, searchQuery, searchVisible, visibleMatchCount]);
+
+  useEffect(() => {
+    if (visibleMatchCount === 0) {
+      setActiveMatchIndex(0);
+      return;
+    }
+
+    if (activeMatchIndex >= visibleMatchCount) {
+      setActiveMatchIndex(visibleMatchCount - 1);
+    }
+  }, [activeMatchIndex, visibleMatchCount]);
 
   if (isLoading) {
     return (
@@ -133,6 +190,22 @@ const ResponsePanel = () => {
     }
   };
 
+  const goToPreviousMatch = () => {
+    if (visibleMatchCount === 0) {
+      return;
+    }
+
+    setActiveMatchIndex(prev => (prev - 1 + visibleMatchCount) % visibleMatchCount);
+  };
+
+  const goToNextMatch = () => {
+    if (visibleMatchCount === 0) {
+      return;
+    }
+
+    setActiveMatchIndex(prev => (prev + 1) % visibleMatchCount);
+  };
+
   return (
     <div className="flex-1 flex flex-col border-t border-border min-h-0 animate-panel-in">
       <div className="flex items-center gap-4 px-3 py-2 border-b border-border bg-card/50 animate-blur-rise">
@@ -176,9 +249,12 @@ const ResponsePanel = () => {
           )}
         </TabsList>
 
-        <div className="flex-1 overflow-hidden">
-          <TabsContent value="body" className="m-0 h-full data-[state=active]:flex data-[state=active]:flex-col">
-            <div className="h-full flex flex-col">
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <TabsContent
+            value="body"
+            className="m-0 h-full min-h-0 data-[state=active]:flex data-[state=active]:flex-col"
+          >
+            <div className="flex-1 min-h-0 flex flex-col">
               <div className="px-3 py-2 border-b border-border bg-card/50 flex flex-wrap items-center gap-2">
                 <ToggleGroup
                   type="single"
@@ -224,31 +300,76 @@ const ResponsePanel = () => {
                   size="sm"
                   className="h-8 text-xs"
                   onClick={() => {
-                    setSearchVisible(prev => !prev);
-                    if (searchVisible) {
-                      setSearchQuery('');
-                    }
+                    setSearchVisible(prev => {
+                      const next = !prev;
+
+                      if (!next) {
+                        setSearchQuery('');
+                        setActiveMatchIndex(0);
+                      }
+
+                      return next;
+                    });
                   }}
                 >
                   <Search className="w-3.5 h-3.5" /> Find
                 </Button>
 
                 {searchVisible && (
-                  <div className="flex items-center gap-2 ml-auto">
+                  <div className="ml-auto flex items-center gap-1.5">
                     <Input
+                      ref={searchInputRef}
                       value={searchQuery}
                       onChange={(event) => setSearchQuery(event.target.value)}
                       placeholder="Search response"
-                      className="h-8 w-48 text-xs"
+                      className="h-8 w-52 text-xs"
+                      onKeyDown={(event) => {
+                        if (event.key !== 'Enter') {
+                          return;
+                        }
+
+                        event.preventDefault();
+                        if (event.shiftKey) {
+                          goToPreviousMatch();
+                          return;
+                        }
+
+                        goToNextMatch();
+                      }}
                     />
-                    <span className="text-[11px] text-muted-foreground shrink-0">
-                      {matchCount} matches
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={goToPreviousMatch}
+                      disabled={visibleMatchCount === 0}
+                      title="Previous match"
+                    >
+                      <ChevronUp className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={goToNextMatch}
+                      disabled={visibleMatchCount === 0}
+                      title="Next match"
+                    >
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </Button>
+                    <span className="min-w-[64px] shrink-0 text-right text-[11px] text-muted-foreground">
+                      {visibleMatchCount > 0 ? `${activeMatchIndex + 1}/${visibleMatchCount}` : '0 matches'}
                     </span>
                   </div>
                 )}
               </div>
 
-              <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto scroll-smooth bg-code-bg text-code-foreground animate-content-flow">
+              <div
+                ref={bodyViewportRef}
+                className="flex-1 min-h-0 overflow-y-auto overflow-x-auto scroll-smooth bg-code-bg text-code-foreground animate-content-flow"
+              >
                 {bodyViewMode === 'preview' && resolvedFormat === 'HTML' ? (
                   <iframe
                     title="Response Preview"
@@ -258,7 +379,7 @@ const ResponsePanel = () => {
                   />
                 ) : (
                   <pre className="min-h-full p-4 font-mono text-xs leading-relaxed whitespace-pre-wrap break-words">
-                    {renderHighlightedText(renderedBody, searchQuery)}
+                    {renderHighlightedText(renderedBody, searchQuery, activeMatchIndex)}
                   </pre>
                 )}
               </div>
@@ -268,9 +389,12 @@ const ResponsePanel = () => {
           <TabsContent value="headers" className="m-0 h-full p-3 overflow-y-auto overflow-x-hidden animate-content-flow">
             <div className="space-y-1">
               {Object.entries(response.headers).map(([key, value]) => (
-                <div key={key} className="flex gap-3 text-xs py-1 border-b border-border/50 last:border-0">
-                  <span className="font-medium text-foreground shrink-0 font-mono">{key}</span>
-                  <span className="text-muted-foreground truncate font-mono">{value}</span>
+                <div
+                  key={key}
+                  className="grid grid-cols-[minmax(120px,220px)_1fr] gap-3 border-b border-border/50 py-1.5 text-xs last:border-0"
+                >
+                  <span className="font-mono font-medium text-foreground break-all">{key}</span>
+                  <span className="font-mono text-muted-foreground break-all whitespace-pre-wrap">{value}</span>
                 </div>
               ))}
             </div>

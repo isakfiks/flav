@@ -16,7 +16,7 @@ const Nav = () => {
             Docs
           </Link>
           <a
-            href="https://github.com"
+            href="https://github.com/isakfiks/flav"
             target="_blank"
             rel="noopener noreferrer"
             className="text-warm-gray transition-colors duration-300 hover:text-foreground"

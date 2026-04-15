@@ -45,7 +45,7 @@ const Docs = () => {
           <p className="text-xs tracking-[0.18em] uppercase text-warm-gray mb-3">Documentation</p>
           <h1 className="text-4xl sm:text-5xl font-editorial leading-tight mb-4">Everything you need to run and ship flav.</h1>
           <p className="text-muted-foreground leading-relaxed">
-            This page covers local development, desktop workflow, and release packaging. It mirrors the in-repo docs so the team and website stay aligned.
+            This page covers local development, desktop workflow, and release packaging. The web target is the landing/docs site, while the API client itself runs in the desktop app.
           </p>
         </section>
 
@@ -59,12 +59,15 @@ const Docs = () => {
         <Section
           id="getting-started"
           title="Getting Started"
-          description="Install dependencies and run either the website or desktop shell in development."
+          description="Install dependencies and run either the landing/docs website or the desktop API client in development."
         >
           <div className="space-y-3 text-sm mb-5">
-            <div className="inline-flex items-center gap-2 text-muted-foreground"><Rocket className="w-4 h-4" /> Website development</div>
+            <div className="inline-flex items-center gap-2 text-muted-foreground"><Rocket className="w-4 h-4" /> Landing + docs development</div>
             <Code>{`npm install\nnpm run dev:web`}</Code>
-            <div className="inline-flex items-center gap-2 text-muted-foreground"><BookOpenText className="w-4 h-4" /> Website production build</div>
+            <p className="text-muted-foreground">
+              This serves only the marketing website and docs. The request/response workspace is desktop-only.
+            </p>
+            <div className="inline-flex items-center gap-2 text-muted-foreground"><BookOpenText className="w-4 h-4" /> Landing + docs production build</div>
             <Code>{`npm run build:web`}</Code>
           </div>
         </Section>

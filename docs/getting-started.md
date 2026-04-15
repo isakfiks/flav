@@ -6,13 +6,17 @@
 npm install
 ```
 
-## Run Website
+## Run Website (Landing + Docs)
 
 ```bash
 npm run dev:web
 ```
 
-## Run Desktop App
+This starts the marketing site and docs at http://localhost:5173.
+
+> Note: the interactive API client is desktop-only.
+
+## Run Desktop App (API Client)
 
 ```bash
 npm run dev:desktop
@@ -21,6 +25,6 @@ npm run dev:desktop
 ## Build
 
 ```bash
-npm run build:web
+npm run build:web      # landing/docs site
 npm run build:desktop
 ```

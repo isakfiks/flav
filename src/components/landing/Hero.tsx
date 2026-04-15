@@ -35,7 +35,7 @@ const Hero = () => {
 
         <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 animate-reveal animate-reveal-delay-3">
           <a
-            href="https://github.com"
+            href="https://github.com/isakfiks/flav"
             target="_blank"
             rel="noopener noreferrer"
             className="group inline-flex items-center gap-2 px-7 py-3.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium transition-all duration-300 hover:opacity-90"

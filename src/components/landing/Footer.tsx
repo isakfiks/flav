@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-6 text-sm text-warm-gray">
           <a
-            href="https://github.com"
+            href="https://github.com/isakfiks/flav"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 transition-colors duration-300 hover:text-foreground"
@@ -18,7 +18,7 @@ const Footer = () => {
           <Link to="/docs" className="transition-colors duration-300 hover:text-foreground">
             Docs
           </Link>
-          <a href="https://github.com/releases" className="transition-colors duration-300 hover:text-foreground" target="_blank" rel="noopener noreferrer">
+          <a href="https://github.com/isakfiks/flav/releases" className="transition-colors duration-300 hover:text-foreground" target="_blank" rel="noopener noreferrer">
             Releases
           </a>
         </div>
