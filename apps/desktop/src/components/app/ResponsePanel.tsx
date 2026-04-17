@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type WheelEvent } from 'react';
 import { useApp } from '@desktop/context/AppContext';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -31,6 +31,9 @@ import {
 
 type BodyViewMode = 'pretty' | 'raw' | 'preview';
 
+const PREVIEW_SCROLL_STYLE =
+  '<style id="flav-preview-scroll-fix">html,body{margin:0;min-height:100%;overflow:auto !important;}</style>';
+
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const countMatches = (source: string, query: string) => {
@@ -43,37 +46,77 @@ const countMatches = (source: string, query: string) => {
   return matches ? matches.length : 0;
 };
 
-const renderHighlightedText = (source: string, query: string, activeMatchIndex: number) => {
+const findMatchRanges = (source: string, query: string) => {
   const trimmed = query.trim();
   if (!trimmed) {
-    return source;
+    return [] as Array<{ start: number; end: number }>;
   }
 
-  let matchIndex = 0;
-  const segments = source.split(new RegExp(`(${escapeRegExp(trimmed)})`, 'gi'));
-  return segments.map((segment, index) => {
-    if (segment.toLowerCase() === trimmed.toLowerCase()) {
-      const currentMatchIndex = matchIndex;
-      matchIndex += 1;
+  const ranges: Array<{ start: number; end: number }> = [];
+  const regex = new RegExp(escapeRegExp(trimmed), 'gi');
+  let match: RegExpExecArray | null = null;
 
-      return (
-        <mark
-          key={`${segment}-${index}`}
-          data-match-index={currentMatchIndex}
-          className={cn(
-            'rounded-sm px-0.5',
-            currentMatchIndex === activeMatchIndex
-              ? 'bg-amber-300/70 text-black'
-              : 'bg-accent/40 text-code-foreground'
-          )}
-        >
-          {segment}
-        </mark>
-      );
+  while ((match = regex.exec(source)) !== null) {
+    ranges.push({ start: match.index, end: match.index + match[0].length });
+
+    if (regex.lastIndex === match.index) {
+      regex.lastIndex += 1;
+    }
+  }
+
+  return ranges;
+};
+
+const buildPreviewDocument = (rawHtml: string) => {
+  const value = String(rawHtml || '');
+
+  if (!value.trim()) {
+    return `<!doctype html><html><head><meta charset="utf-8"/>${PREVIEW_SCROLL_STYLE}</head><body></body></html>`;
+  }
+
+  if (/<head[\s>]/i.test(value)) {
+    if (/flav-preview-scroll-fix/i.test(value)) {
+      return value;
     }
 
-    return <span key={`${segment}-${index}`}>{segment}</span>;
-  });
+    if (/<\/head>/i.test(value)) {
+      return value.replace(/<\/head>/i, `${PREVIEW_SCROLL_STYLE}</head>`);
+    }
+
+    return value.replace(/<head([^>]*)>/i, `<head$1>${PREVIEW_SCROLL_STYLE}`);
+  }
+
+  if (/<html[\s>]/i.test(value)) {
+    return value.replace(/<html([^>]*)>/i, `<html$1><head>${PREVIEW_SCROLL_STYLE}</head>`);
+  }
+
+  return `<!doctype html><html><head><meta charset="utf-8"/>${PREVIEW_SCROLL_STYLE}</head><body>${value}</body></html>`;
+};
+
+const forceScrollOnWheel = (event: WheelEvent<HTMLElement>) => {
+  const viewport = event.currentTarget;
+  const hasVerticalDelta = Math.abs(event.deltaY) > 0;
+
+  if (hasVerticalDelta) {
+    const previousTop = viewport.scrollTop;
+    viewport.scrollTop = previousTop + event.deltaY;
+
+    if (viewport.scrollTop !== previousTop) {
+      event.preventDefault();
+      return;
+    }
+  }
+
+  const horizontalDelta = Math.abs(event.deltaX) > 0 ? event.deltaX : event.shiftKey ? event.deltaY : 0;
+  if (horizontalDelta === 0) {
+    return;
+  }
+
+  const previousLeft = viewport.scrollLeft;
+  viewport.scrollLeft = previousLeft + horizontalDelta;
+  if (viewport.scrollLeft !== previousLeft) {
+    event.preventDefault();
+  }
 };
 
 const ResponsePanel = () => {
@@ -88,7 +131,7 @@ const ResponsePanel = () => {
   const [activeMatchIndex, setActiveMatchIndex] = useState(0);
   const [copied, setCopied] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const bodyViewportRef = useRef<HTMLDivElement>(null);
+  const bodyCodeRef = useRef<HTMLTextAreaElement>(null);
 
   const responseBody = response?.body ?? '';
   const responseHeaders = response?.headers;
@@ -104,8 +147,15 @@ const ResponsePanel = () => {
   );
 
   const renderedBody = bodyViewMode === 'raw' ? responseBody : formattedBody;
+  const isHtmlPreview = bodyViewMode === 'preview' && resolvedFormat === 'HTML';
+  const previewDocument = useMemo(() => buildPreviewDocument(responseBody), [responseBody]);
   const matchCount = useMemo(() => countMatches(renderedBody, searchQuery), [renderedBody, searchQuery]);
+  const matchRanges = useMemo(() => findMatchRanges(renderedBody, searchQuery), [renderedBody, searchQuery]);
   const visibleMatchCount = bodyViewMode === 'preview' ? 0 : matchCount;
+  const responseHeadersText = useMemo(
+    () => Object.entries(responseHeaders ?? {}).map(([key, value]) => `${key}: ${value}`).join('\n'),
+    [responseHeaders],
+  );
 
   useEffect(() => {
     setActiveMatchIndex(0);
@@ -121,18 +171,53 @@ const ResponsePanel = () => {
   }, [searchVisible]);
 
   useEffect(() => {
-    if (!searchVisible || !searchQuery.trim() || visibleMatchCount === 0) {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'f') {
+        return;
+      }
+
+      event.preventDefault();
+      setSearchVisible((previous) => {
+        if (previous) {
+          window.requestAnimationFrame(() => {
+            searchInputRef.current?.focus();
+            searchInputRef.current?.select();
+          });
+        }
+
+        return true;
+      });
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  useEffect(() => {
+    if (!searchVisible || !searchQuery.trim() || visibleMatchCount === 0 || bodyViewMode === 'preview') {
       return;
     }
 
-    const viewport = bodyViewportRef.current;
-    if (!viewport) {
+    const textarea = bodyCodeRef.current;
+    if (!textarea) {
       return;
     }
 
-    const activeMatch = viewport.querySelector<HTMLElement>(`mark[data-match-index="${activeMatchIndex}"]`);
-    activeMatch?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-  }, [activeMatchIndex, searchQuery, searchVisible, visibleMatchCount]);
+    const range = matchRanges[activeMatchIndex];
+    if (!range) {
+      return;
+    }
+
+    const isSearchInputFocused = document.activeElement === searchInputRef.current;
+    if (!isSearchInputFocused) {
+      textarea.setSelectionRange(range.start, range.end);
+    }
+
+    const lineHeight = Number.parseFloat(window.getComputedStyle(textarea).lineHeight || '16') || 16;
+    const lineNumber = renderedBody.slice(0, range.start).split('\n').length - 1;
+    const nextScrollTop = Math.max(0, lineNumber * lineHeight - textarea.clientHeight / 2);
+    textarea.scrollTop = nextScrollTop;
+  }, [activeMatchIndex, bodyViewMode, matchRanges, renderedBody, searchQuery, searchVisible, visibleMatchCount]);
 
   useEffect(() => {
     if (visibleMatchCount === 0) {
@@ -252,10 +337,10 @@ const ResponsePanel = () => {
         <div className="flex-1 min-h-0 overflow-hidden">
           <TabsContent
             value="body"
-            className="m-0 h-full min-h-0 data-[state=active]:flex data-[state=active]:flex-col"
+            className="m-0 h-full min-h-0 overflow-hidden data-[state=active]:flex data-[state=active]:flex-col"
           >
-            <div className="flex-1 min-h-0 flex flex-col">
-              <div className="px-3 py-2 border-b border-border bg-card/50 flex flex-wrap items-center gap-2">
+            <div className="grid flex-1 min-h-0 grid-rows-[auto_minmax(0,1fr)]">
+              <div className="px-3 py-2 border-b border-border bg-card/50 flex flex-nowrap items-center gap-2 overflow-x-auto">
                 <ToggleGroup
                   type="single"
                   value={bodyViewMode}
@@ -366,37 +451,48 @@ const ResponsePanel = () => {
                 )}
               </div>
 
-              <div
-                ref={bodyViewportRef}
-                className="flex-1 min-h-0 overflow-y-auto overflow-x-auto scroll-smooth bg-code-bg text-code-foreground animate-content-flow"
-              >
-                {bodyViewMode === 'preview' && resolvedFormat === 'HTML' ? (
+              {isHtmlPreview ? (
+                <div
+                  className="min-h-0 overflow-hidden bg-background animate-content-flow"
+                >
                   <iframe
                     title="Response Preview"
-                    className="w-full h-full bg-white"
+                    className="block w-full h-full border-0 bg-white"
                     sandbox=""
-                    srcDoc={responseBody}
+                    srcDoc={previewDocument}
                   />
-                ) : (
-                  <pre className="min-h-full p-4 font-mono text-xs leading-relaxed whitespace-pre-wrap break-words">
-                    {renderHighlightedText(renderedBody, searchQuery, activeMatchIndex)}
-                  </pre>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="min-h-0 overflow-hidden bg-code-bg animate-content-flow">
+                  <textarea
+                    ref={bodyCodeRef}
+                    readOnly
+                    rows={14}
+                    wrap="off"
+                    spellCheck={false}
+                    value={renderedBody}
+                    onWheelCapture={forceScrollOnWheel}
+                    className="block h-full min-h-0 w-full resize-none overflow-y-auto overflow-x-auto overscroll-contain bg-code-bg text-code-foreground p-4 font-mono text-xs leading-relaxed outline-none"
+                  />
+                </div>
+              )}
             </div>
           </TabsContent>
 
-          <TabsContent value="headers" className="m-0 h-full p-3 overflow-y-auto overflow-x-hidden animate-content-flow">
-            <div className="space-y-1">
-              {Object.entries(response.headers).map(([key, value]) => (
-                <div
-                  key={key}
-                  className="grid grid-cols-[minmax(120px,220px)_1fr] gap-3 border-b border-border/50 py-1.5 text-xs last:border-0"
-                >
-                  <span className="font-mono font-medium text-foreground break-all">{key}</span>
-                  <span className="font-mono text-muted-foreground break-all whitespace-pre-wrap">{value}</span>
-                </div>
-              ))}
+          <TabsContent
+            value="headers"
+            className="m-0 h-full min-h-0 overflow-hidden animate-content-flow data-[state=active]:flex data-[state=active]:flex-col"
+          >
+            <div className="h-0 flex-1 min-h-0 overflow-hidden p-3 animate-content-flow">
+              <textarea
+                readOnly
+                rows={14}
+                wrap="off"
+                spellCheck={false}
+                value={responseHeadersText}
+                onWheelCapture={forceScrollOnWheel}
+                className="block h-full min-h-0 w-full resize-none overflow-y-auto overflow-x-auto overscroll-contain bg-transparent font-mono text-xs leading-relaxed text-foreground outline-none"
+              />
             </div>
           </TabsContent>
 

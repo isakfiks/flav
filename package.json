@@ -9,7 +9,9 @@
   "scripts": {
     "dev": "vite",
     "dev:web": "vite",
-    "dev:desktop": "concurrently -k \"vite --config apps/desktop/vite.config.ts\" \"wait-on tcp:5174 && cross-env ELECTRON_RENDERER_URL=http://127.0.0.1:5174 electron apps/desktop/electron/main.cjs\"",
+    "dev:desktop": "concurrently -k \"vite --config apps/desktop/vite.config.ts\" \"wait-on http://127.0.0.1:5174 && cross-env ELECTRON_RENDERER_URL=http://127.0.0.1:5174 electron apps/desktop/electron/main.cjs\"",
+    "dev:electron-main": "cross-env ELECTRON_RENDERER_URL=http://127.0.0.1:5174 nodemon --watch apps/desktop/electron --ext cjs,js --exec \"npx electron apps/desktop/electron/main.cjs\"",
+    "dev:desktop:hot": "concurrently -k \"vite --config apps/desktop/vite.config.ts\" \"npm:dev:electron-main\"",
     "build": "vite build",
     "build:web": "vite build",
     "build:desktop": "vite build --config apps/desktop/vite.config.ts",
