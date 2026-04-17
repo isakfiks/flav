@@ -26,23 +26,43 @@
     "appId": "com.flav.desktop",
     "productName": "flav",
     "asar": true,
+    "compression": "maximum",
+    "buildDependenciesFromSource": false,
+    "npmRebuild": false,
+    "electronLanguages": [
+      "en-US"
+    ],
     "directories": {
       "output": "release"
     },
     "files": [
       "apps/desktop/electron/**/*",
-      "apps/desktop/dist/**/*"
+      "apps/desktop/dist/**/*",
+      "!**/*.map"
     ],
     "extraMetadata": {
       "main": "apps/desktop/electron/main.cjs"
     },
     "win": {
       "target": [
-        "portable"
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "icon": "public/logo-main.png",
-      "artifactName": "flav-${version}-${arch}.${ext}",
+      "artifactName": "flav-setup-${version}-${arch}.${ext}",
       "executableName": "flav"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "flav"
     }
   },
   "dependencies": {

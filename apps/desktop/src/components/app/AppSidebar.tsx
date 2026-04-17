@@ -7,7 +7,6 @@ import {
   Trash2,
   MoreHorizontal,
   FileText,
-  Import,
   GripVertical,
   PenLine,
 } from 'lucide-react';
@@ -353,12 +352,6 @@ const AppSidebar = () => {
               title="New Collection"
             >
               <Plus className="w-3.5 h-3.5" />
-            </button>
-            <button
-              className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              title="Import"
-            >
-              <Import className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

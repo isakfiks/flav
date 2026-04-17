@@ -21,7 +21,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import { useApp } from '@desktop/context/AppContext';
 import { createEmptyCollection } from '@desktop/types/api';
-import EnvironmentSwitcher from './EnvironmentSwitcher';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -261,10 +260,6 @@ const AppNav = () => {
       </div>
 
       <div className="ml-auto flex items-center gap-2">
-        <div className="app-no-drag">
-          <EnvironmentSwitcher />
-        </div>
-
         <div className="app-no-drag flex items-center">
           <button
             onClick={() => {
