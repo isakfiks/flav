@@ -337,4 +337,9 @@
   .animate-dropdown-blur {
     animation: none !important;
   }
+
+  .animate-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
