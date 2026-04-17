@@ -1,6 +1,8 @@
 import { Github, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 
+const WINDOWS_SETUP_URL = "https://github.com/isakfiks/flav/releases/download/v1.0.0/flav-v1.0.0-windows-x86_64-setup.exe";
+
 const OpenSource = () => {
   return (
     <section className="py-32 px-6">
@@ -39,19 +41,21 @@ const OpenSource = () => {
 
           <div className="border border-foreground/10 bg-surface rounded-xl p-8 transition-colors duration-300 hover:border-foreground/15">
             <p className="text-xs tracking-[0.15em] uppercase text-warm-gray mb-6">
-              Soon
+              Available
             </p>
             <p className="text-lg font-sans font-medium mb-4">Release Downloads</p>
             <p className="text-sm text-muted-foreground font-light mb-8">
-              When we publish stable releases, you'll be able to download pre-built binaries directly from GitHub.
+              Download the latest stable Windows installer directly from GitHub Releases.
             </p>
-            <button
-              disabled
-              className="inline-flex items-center gap-2 rounded-md border border-border/40 px-4 py-2 text-sm text-muted-foreground/50 cursor-not-allowed"
+            <a
+              href={WINDOWS_SETUP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground hover:border-foreground/20"
             >
               <Download className="w-4 h-4" />
-              Coming Soon
-            </button>
+              Download Windows Setup
+            </a>
           </div>
         </div>
 

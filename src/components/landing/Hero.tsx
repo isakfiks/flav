@@ -1,5 +1,6 @@
-import { ArrowRight, Github } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Download, Github } from "lucide-react";
+
+const WINDOWS_SETUP_URL = "https://github.com/isakfiks/flav/releases/download/v1.0.0/flav-v1.0.0-windows-x86_64-setup.exe";
 
 const Hero = () => {
   return (
@@ -35,6 +36,15 @@ const Hero = () => {
 
         <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 animate-reveal animate-reveal-delay-3">
           <a
+            href={WINDOWS_SETUP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-7 py-3.5 border border-border rounded-lg text-sm font-medium text-muted-foreground transition-all duration-300 hover:text-foreground hover:border-foreground/20"
+          >
+            <Download className="w-4 h-4" />
+            Download for Windows
+          </a>
+          <a
             href="https://github.com/isakfiks/flav"
             target="_blank"
             rel="noopener noreferrer"
@@ -43,13 +53,6 @@ const Hero = () => {
             <Github className="w-4 h-4" />
             Star us on GitHub
           </a>
-          <Link
-            to="/docs"
-            className="inline-flex items-center gap-2 px-7 py-3.5 border border-border rounded-lg text-sm font-medium text-muted-foreground transition-all duration-300 hover:text-foreground hover:border-foreground/20"
-          >
-            Read Docs
-            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </Link>
         </div>
 
         <p className="mt-10 text-xs text-warm-gray animate-reveal animate-reveal-delay-4">
