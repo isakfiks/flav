@@ -13,7 +13,7 @@ const Nav = () => {
             Features
           </a>
           <Link to="/docs" className="text-xs text-warm-gray transition-colors duration-300 hover:text-foreground hidden sm:inline">
-            Read Docs
+            Docs
           </Link>
           <a
             href="https://github.com/isakfiks/flav/releases/download/v1.0.0/flav-v1.0.0-windows-x86_64-setup.exe"
