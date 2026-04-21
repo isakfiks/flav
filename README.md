@@ -26,7 +26,7 @@ flav is a clean, lightweight, open-source API client built for developers who va
 - **Auth Methods** — Basic, Bearer, API Key, OAuth 2.0
 - **Syntax Highlighting** — Readable request/response formatting
 - **60fps Animations** — Smooth, polished interactions
-- **Desktop App** — Electron-based desktop client for macOS and Windows
+- **Desktop App** — Tauri-based desktop client focused on startup speed and smaller bundles
 - **Extensible** — Plugin system for custom functionality
 
 ## Quick Start
@@ -81,7 +81,7 @@ flav/
 ├── apps/
 │   └── desktop/
 │       ├── src/           # Desktop renderer
-│       ├── electron/      # Main process & preload
+│       ├── src-tauri/     # Tauri runtime + native commands
 │       └── vite.config.ts
 ├── docs/                  # Project documentation
 └── package.json
@@ -90,7 +90,7 @@ flav/
 ## Documentation
 
 - [Getting Started](./docs/getting-started.md) — Setup and first request
-- [Desktop Release](./docs/desktop-release.md) — Building and packaging the Electron app
+- [Desktop Release](./docs/desktop-release.md) — Building and packaging the desktop app
 - [API](/docs) — Full documentation (also available at /docs on the web app)
 
 ## Contributing

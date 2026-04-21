@@ -22,6 +22,12 @@ This starts the marketing site and docs at http://localhost:5173.
 npm run dev:desktop
 ```
 
+> Desktop development/build now uses Tauri and requires a Rust toolchain.
+>
+> Windows setup (if cargo is missing):
+>
+> `winget install Rustlang.Rustup` then restart your shell and run `rustup default stable`.
+
 ## Build
 
 ```bash

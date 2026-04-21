@@ -4,14 +4,12 @@
   "author": "isakf",
   "private": true,
   "version": "0.0.0",
-  "main": "apps/desktop/electron/main.cjs",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "dev:web": "vite",
-    "dev:desktop": "concurrently -k \"vite --config apps/desktop/vite.config.ts\" \"wait-on http://127.0.0.1:5174 && cross-env ELECTRON_RENDERER_URL=http://127.0.0.1:5174 electron apps/desktop/electron/main.cjs\"",
-    "dev:electron-main": "cross-env ELECTRON_RENDERER_URL=http://127.0.0.1:5174 nodemon --watch apps/desktop/electron --ext cjs,js --exec \"npx electron apps/desktop/electron/main.cjs\"",
-    "dev:desktop:hot": "concurrently -k \"vite --config apps/desktop/vite.config.ts\" \"npm:dev:electron-main\"",
+    "dev:desktop:ui": "vite --config apps/desktop/vite.config.ts",
+    "dev:desktop": "tauri dev --config apps/desktop/src-tauri/tauri.conf.json",
     "build": "vite build",
     "build:web": "vite build",
     "build:desktop": "vite build --config apps/desktop/vite.config.ts",
@@ -20,50 +18,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "dist:win": "npm run build:desktop && node scripts/dist-win.cjs"
-  },
-  "build": {
-    "appId": "com.flav.desktop",
-    "productName": "flav",
-    "asar": true,
-    "compression": "maximum",
-    "buildDependenciesFromSource": false,
-    "npmRebuild": false,
-    "electronLanguages": [
-      "en-US"
-    ],
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "apps/desktop/electron/**/*",
-      "apps/desktop/dist/**/*",
-      "!**/*.map"
-    ],
-    "extraMetadata": {
-      "main": "apps/desktop/electron/main.cjs"
-    },
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "public/logo-main.png",
-      "artifactName": "flav-setup-${version}-${arch}.${ext}",
-      "executableName": "flav"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "allowElevation": true,
-      "createDesktopShortcut": "always",
-      "createStartMenuShortcut": true,
-      "shortcutName": "flav"
-    }
+    "dist:win": "node scripts/dist-win.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -119,6 +74,7 @@
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "@tailwindcss/typography": "^0.5.16",
+    "@tauri-apps/cli": "^2.8.0",
     "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/react": "^16.0.0",
     "@types/node": "^22.16.5",
@@ -126,22 +82,18 @@
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react-swc": "^3.11.0",
     "autoprefixer": "^10.4.21",
-    "concurrently": "^9.2.1",
-    "cross-env": "^7.0.3",
-    "electron": "^37.2.6",
-    "electron-builder": "^26.0.12",
     "eslint": "^9.32.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
     "jsdom": "^20.0.3",
     "lovable-tagger": "^1.1.13",
+    "png-to-ico": "^3.0.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
     "vite": "^5.4.19",
-    "vitest": "^3.2.4",
-    "wait-on": "^8.0.5"
+    "vitest": "^3.2.4"
   }
 }

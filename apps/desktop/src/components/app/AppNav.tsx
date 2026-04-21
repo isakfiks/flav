@@ -117,6 +117,11 @@ const AppNav = () => {
   };
 
   const openExternal = (url: string) => {
+    if (window.arcApi?.openExternal) {
+      void window.arcApi.openExternal(url);
+      return;
+    }
+
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 

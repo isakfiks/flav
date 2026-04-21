@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 /release
 /release-alt
+/apps/desktop/src-tauri/target
+/apps/desktop/src-tauri/gen

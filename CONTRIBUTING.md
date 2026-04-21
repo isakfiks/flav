@@ -85,7 +85,7 @@ Include:
 - What you were trying to do
 - What happened
 - What you expected to happen
-- Your environment (OS, browser/Electron version, flav version)
+- Your environment (OS, browser/desktop runtime version, flav version)
 
 ### Suggesting Features
 

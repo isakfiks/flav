@@ -21,6 +21,7 @@ interface ArcDesktopResponsePayload {
 interface Window {
 	arcApi?: {
 		sendRequest: (payload: ArcDesktopRequestPayload) => Promise<ArcDesktopResponsePayload>;
+		openExternal: (url: string) => Promise<void>;
 	};
 	arcWindow?: {
 		minimize: () => Promise<void>;

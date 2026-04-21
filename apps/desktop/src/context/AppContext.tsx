@@ -365,7 +365,7 @@ const getRequestSendErrorMessage = (error: unknown) => {
 };
 
 const getBridgeUnavailableMessage = () => {
-  return 'Desktop bridge unavailable. Run flav with npm run dev:desktop or use the packaged flav.exe.';
+  return 'Desktop bridge unavailable. Run flav with npm run dev:desktop or use the packaged desktop build.';
 };
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
